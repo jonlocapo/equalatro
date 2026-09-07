@@ -16,7 +16,14 @@ LUCKY: { name: "Lucky", color: "#ffb703" }
 var KIND_LIST = ["PYRO", "VOLT", "GRIP", "AERO", "BULK", "LUCKY"];
 var RARITIES = ["C", "U", "R", "E", "L"];
 var RNAME = { C: "Common", U: "Uncommon", R: "Rare", E: "Epic", L: "Legendary" };
-var RPRICE = { C: 40, U: 70, R: 110, E: 160, L: 230 };
+var RPRICE = { C: 2, U: 4, R: 6, E: 8, L: 10 };
+var EDITIONS = {
+STD: { name: "Standard", color: "#cfd2d6", cost: 0, w: 70 },
+FOIL: { name: "Foil", color: "#7bf1a8", cost: 2, w: 15 },
+HOLO: { name: "Holographic", color: "#3a86ff", cost: 3, w: 9 },
+POLY: { name: "Polychrome", color: "#ff5a3c", cost: 5, w: 4.5 },
+NEG: { name: "Negative", color: "#e8e8f0", cost: -99, w: 1.5 }
+};
 var ACTIVE_INFO = {
 BOOST: { name: "Boost", icon: "B" },
 FIRE: { name: "Fire Drop", icon: "F" },
@@ -27,7 +34,7 @@ STAR: { name: "Star", icon: "*" }
 };
 var SYNERGY = {
 PYRO: { l2: { stats: {}, mods: { burnSlowPct: 0.25, burnDur: 0.5 }, text: "Pyro 2: burns sting +25% and linger" }, l3: { stats: {}, mods: { burnSlowPct: 0.6, burnDur: 1.2 }, text: "Pyro 3+: burns sting +60%, trails burn long" } },
-VOLT: { l2: { stats: {}, mods: { chargeRatePct: 0.2 }, text: "Volt 2: boost charges 20% faster" }, l3: { stats: {}, mods: { chargeRatePct: 0.45, boostPowerPct: 0.1 }, text: "Volt 3+: charges 45% faster, boosts hit harder" } },
+VOLT: { l2: { stats: {}, mods: { chargeRatePct: 0.2, regenPct: 0.25 }, text: "Volt 2: charges 20% faster, regens quicker" }, l3: { stats: {}, mods: { chargeRatePct: 0.45, boostPowerPct: 0.1 }, text: "Volt 3+: charges 45% faster, boosts hit harder" } },
 GRIP: { l2: { stats: { ha: 1, tu: 1 }, mods: {}, text: "Grip 2: +1 handling, +1 turbo" }, l3: { stats: { ha: 2, tu: 2 }, mods: {}, text: "Grip 3+: +2 handling, +2 turbo" } },
 AERO: { l2: { stats: { sp: 1, ac: 1 }, mods: {}, text: "Aero 2: +1 speed, +1 accel" }, l3: { stats: { sp: 2, ac: 1 }, mods: { boostPowerPct: 0.1 }, text: "Aero 3+: +2 speed, +1 accel, stronger boost" } },
 BULK: { l2: { stats: {}, mods: { bumpPct: 0.3, offroadCutPct: 0.2, maxhp: 15 }, text: "Bulk 2: heavy shoves, +15 HP, eats rough ground" }, l3: { stats: { we: 1 }, mods: { bumpPct: 0.6, offroadCutPct: 0.35, maxhp: 30 }, text: "Bulk 3+: +1 weight, +30 HP, huge shoves" } },
@@ -51,14 +58,14 @@ var PARTS = [
 { id: "t_socks", name: "Grip Socks", slot: "TIRES", rar: "C", kind: "GRIP", s: { sp: 0, ac: 1, ha: 2, tu: 1, we: -1 }, m: {}, fx: "Plain, grippy, honest rubber." },
 { id: "t_donuts", name: "Drift Donuts", slot: "TIRES", rar: "C", kind: "LUCKY", s: { sp: -1, ac: 1, ha: 1, tu: 2, we: 0 }, m: { coinMultPct: 0.1 }, fx: "Showboating pays a little extra." },
 { id: "t_cinder", name: "Cinder Treads", slot: "TIRES", rar: "U", kind: "PYRO", s: { sp: 1, ac: 0, ha: 1, tu: 0, we: 1 }, m: { burnSlowPct: 0.2 }, fx: "Burns sting 20% more." },
-{ id: "t_hydro", name: "Hydro Planers", slot: "TIRES", rar: "U", kind: "AERO", s: { sp: 0, ac: 0, ha: 2, tu: 1, we: 0 }, m: { offroadCutPct: 0.3 }, fx: "Skims over rough ground." },
+{ id: "t_hydro", name: "Hydro Planers", slot: "TIRES", rar: "U", kind: "AERO", s: { sp: 0, ac: 0, ha: 2, tu: 1, we: 0 }, m: { offroadCutPct: 0.3, regenPct: 0.25 }, fx: "Skims rough ground, patches up fast." },
 { id: "t_magnet", name: "Mag Boots", slot: "TIRES", rar: "R", kind: "LUCKY", s: { sp: 0, ac: 1, ha: 1, tu: 0, we: 1 }, m: { magnet: 1, coinMultPct: 0.15 }, fx: "Pulls in nearby coins." },
 { id: "t_titan", name: "Titan Rolls", slot: "TIRES", rar: "E", kind: "BULK", s: { sp: 1, ac: -1, ha: 0, tu: -1, we: 4 }, m: { bumpPct: 0.35, offroadCutPct: 0.3 }, fx: "Steamrolls everything, including lap times." },
 { id: "t_phantom", name: "Phantom Wheels", slot: "TIRES", rar: "L", kind: "GRIP", s: { sp: 1, ac: 1, ha: 3, tu: 2, we: -1 }, m: { chargeRatePct: 0.2 }, fx: "Barely touches the road." },
 { id: "b_crate", name: "Crate Frame", slot: "BODY", rar: "C", kind: "BULK", s: { sp: 0, ac: 0, ha: 0, tu: -1, we: 2 }, m: { bumpPct: 0.2 }, fx: "A box with wheels. Sturdy box." },
 { id: "b_paper", name: "Paper Dart", slot: "BODY", rar: "C", kind: "AERO", s: { sp: 1, ac: 1, ha: 0, tu: 0, we: -1 }, m: {}, fx: "Light and eager." },
 { id: "b_ember", name: "Ember Hull", slot: "BODY", rar: "U", kind: "PYRO", s: { sp: 1, ac: 0, ha: 0, tu: 1, we: 1 }, m: { burnDur: 0.5, burnSlowPct: 0.15 }, fx: "Warm to the touch. Hot to chase." },
-{ id: "b_cushion", name: "Cushion", slot: "BODY", rar: "U", kind: "GRIP", s: { sp: -1, ac: 1, ha: 2, tu: 0, we: 1 }, m: {}, fx: "Bounces back from bumps." },
+{ id: "b_cushion", name: "Cushion", slot: "BODY", rar: "U", kind: "GRIP", s: { sp: -1, ac: 1, ha: 2, tu: 0, we: 1 }, m: { regenPct: 0.3 }, fx: "Bounces back. Wrecks patch up 30% faster." },
 { id: "b_vault", name: "Volt Vault", slot: "BODY", rar: "R", kind: "VOLT", s: { sp: 0, ac: 2, ha: -1, tu: 1, we: 1 }, m: { chargeRatePct: 0.2 }, fx: "Hums with stored lightning." },
 { id: "b_aegis", name: "Aegis Shell", slot: "BODY", rar: "E", kind: "AERO", s: { sp: 0, ac: 0, ha: 1, tu: 0, we: 2 }, m: { shield: 1 }, fx: "Blocks one hit per race." },
 { id: "b_gilded", name: "Gilded Tub", slot: "BODY", rar: "L", kind: "LUCKY", s: { sp: 2, ac: 1, ha: 1, tu: 1, we: 1 }, m: { coinMultPct: 0.3, luck: 0.15 }, fx: "Pays out and finds better stock." },
@@ -69,13 +76,13 @@ var PARTS = [
 { id: "s_antenna", name: "Storm Antenna", slot: "SPOILER", rar: "R", kind: "VOLT", s: { sp: -1, ac: 2, ha: 0, tu: 2, we: -1 }, m: { boostPowerPct: 0.15 }, fx: "Calls down speed." },
 { id: "s_ram", name: "Ram Bar", slot: "SPOILER", rar: "E", kind: "BULK", s: { sp: 1, ac: -1, ha: 0, tu: -1, we: 2 }, m: { bumpPct: 0.4 }, fx: "The argument ender." },
 { id: "s_halo", name: "Sky Halo", slot: "SPOILER", rar: "L", kind: "AERO", s: { sp: 2, ac: 1, ha: 2, tu: 1, we: -1 }, m: { boostPowerPct: 0.15, offroadCutPct: 0.2 }, fx: "Barely legal. Barely touching." },
-{ id: "c_shroom", name: "Lucky Shroom", slot: "CHARM", rar: "C", kind: "LUCKY", s: { sp: 0, ac: 1, ha: 0, tu: 1, we: 0 }, m: {}, active: "BOOST", charges: 1, fx: "SPACE: small boost on demand." },
-{ id: "c_oil", name: "Oil Can", slot: "CHARM", rar: "C", kind: "BULK", s: { sp: 0, ac: 0, ha: 0, tu: 0, we: 1 }, m: {}, active: "OIL", charges: 2, fx: "SPACE: drops a slick behind you." },
-{ id: "c_ember", name: "Ember Charm", slot: "CHARM", rar: "U", kind: "PYRO", s: { sp: 0, ac: 0, ha: 0, tu: 1, we: 0 }, m: { burnSlowPct: 0.25 }, active: "FIRE", charges: 2, fx: "SPACE: drops fire that slows rivals." },
-{ id: "c_zap", name: "Zap Bug", slot: "CHARM", rar: "U", kind: "VOLT", s: { sp: 0, ac: 1, ha: 0, tu: 0, we: 0 }, m: { chargeRatePct: 0.1 }, active: "ZAP", charges: 1, fx: "SPACE: zaps the rival ahead of you." },
-{ id: "c_guard", name: "Guard Shell", slot: "CHARM", rar: "R", kind: "GRIP", s: { sp: -1, ac: 0, ha: 1, tu: 0, we: 1 }, m: { shield: 1 }, active: "SHIELD", charges: 1, fx: "SPACE: shield. Blocks the next hit." },
-{ id: "c_magnet", name: "Coin Magnet", slot: "CHARM", rar: "E", kind: "LUCKY", s: { sp: 0, ac: 0, ha: 1, tu: 0, we: 0 }, m: { magnet: 1, coinMultPct: 0.25 }, active: "BOOST", charges: 1, fx: "SPACE: boost. Coins fly to you." },
-{ id: "c_star", name: "Fallen Star", slot: "CHARM", rar: "L", kind: "AERO", s: { sp: 1, ac: 1, ha: 1, tu: 1, we: 0 }, m: { boostPowerPct: 0.1 }, active: "STAR", charges: 1, fx: "SPACE: brief invincible star run." }
+{ id: "c_shroom", name: "Lucky Shroom", slot: "CHARM", rar: "C", kind: "LUCKY", s: { sp: 0, ac: 1, ha: 0, tu: 1, we: 0 }, m: {}, active: "BOOST", charges: 1, fx: "C: small boost on demand." },
+{ id: "c_oil", name: "Oil Can", slot: "CHARM", rar: "C", kind: "BULK", s: { sp: 0, ac: 0, ha: 0, tu: 0, we: 1 }, m: {}, active: "OIL", charges: 2, fx: "C: drops a slick behind you." },
+{ id: "c_ember", name: "Ember Charm", slot: "CHARM", rar: "U", kind: "PYRO", s: { sp: 0, ac: 0, ha: 0, tu: 1, we: 0 }, m: { burnSlowPct: 0.25 }, active: "FIRE", charges: 2, fx: "C: drops fire that slows rivals." },
+{ id: "c_zap", name: "Zap Bug", slot: "CHARM", rar: "U", kind: "VOLT", s: { sp: 0, ac: 1, ha: 0, tu: 0, we: 0 }, m: { chargeRatePct: 0.1 }, active: "ZAP", charges: 1, fx: "C: zaps the rival ahead of you." },
+{ id: "c_guard", name: "Guard Shell", slot: "CHARM", rar: "R", kind: "GRIP", s: { sp: -1, ac: 0, ha: 1, tu: 0, we: 1 }, m: { shield: 1 }, active: "SHIELD", charges: 1, fx: "C: shield. Blocks the next hit." },
+{ id: "c_magnet", name: "Coin Magnet", slot: "CHARM", rar: "E", kind: "LUCKY", s: { sp: 0, ac: 0, ha: 1, tu: 0, we: 0 }, m: { magnet: 1, coinMultPct: 0.25, regenPct: 0.25 }, active: "BOOST", charges: 1, fx: "C: boost. Coins and repairs fly to you." },
+{ id: "c_star", name: "Fallen Star", slot: "CHARM", rar: "L", kind: "AERO", s: { sp: 1, ac: 1, ha: 1, tu: 1, we: 0 }, m: { boostPowerPct: 0.1 }, active: "STAR", charges: 1, fx: "C: brief invincible star run." }
 ];
 var PART_BY_ID = {};
 for (var i = 0; i < PARTS.length; i++) { PART_BY_ID[PARTS[i].id] = PARTS[i]; }
@@ -91,8 +98,13 @@ var LEGS = [
 { racers: 10, cut: 6, laps: 2, chaos: 3 },
 { racers: 6, cut: 1, laps: 3, chaos: 4 }
 ];
+var SEGS = [25, 23, 21, 19, 16, 13, 10, 8, 6];
+var SEG_CUTS = [2, 2, 2, 3, 3, 3, 2, 2];
 var PIT_TIME = 25;
-var SERVICE_COST = 40;
+var SERVICE_COST = 3;
+var FUEL_COST = 3;
+var FIX_COST = 3;
+var REROLL_COST = 1;
 var FUEL_MAX = 100;
 var HP_BASE = 100;
 var BOSS = {
@@ -116,7 +128,7 @@ if (rank > 7 && rng() < 0.5) { return null; }
 return BOSS_KEYS[Math.floor(rng() * BOSS_KEYS.length)];
 }
 function baseMods() {
-return { boostPowerPct: 0, chargeRatePct: 0, burnSlowPct: 0, burnDur: 0, shield: 0, coinMultPct: 0, magnet: 0, bumpPct: 0, offroadCutPct: 0, luck: 0, maxhp: 0 };
+return { boostPowerPct: 0, chargeRatePct: 0, burnSlowPct: 0, burnDur: 0, shield: 0, coinMultPct: 0, magnet: 0, bumpPct: 0, offroadCutPct: 0, luck: 0, maxhp: 0, regenPct: 0 };
 }
 function addMods(dst, src) {
 if (!src) { return; }
@@ -124,6 +136,48 @@ for (var k in src) { if (typeof dst[k] === "number" && typeof src[k] === "number
 }
 function addStats(dst, src) {
 for (var k = 0; k < STAT_KEYS.length; k++) { var key = STAT_KEYS[k]; dst[key] += (src[key] || 0); }
+}
+function topStatKey(s) {
+var bestK = "sp"; var bestV = -99;
+for (var k = 0; k < STAT_KEYS.length; k++) {
+var v = s[STAT_KEYS[k]] || 0;
+if (v > bestV) { bestV = v; bestK = STAT_KEYS[k]; }
+}
+return bestK;
+}
+function applyEdition(stats, mods, p) {
+var ed = p.ed || "STD";
+if (ed === "FOIL") { stats[topStatKey(p.s)] += 1; }
+else if (ed === "HOLO") { for (var k in mods) { if (typeof mods[k] === "number" && (k === "burnSlowPct" || k === "burnDur" || k === "chargeRatePct" || k === "boostPowerPct" || k === "coinMultPct" || k === "luck" || k === "regenPct")) { mods[k] = Math.round(mods[k] * 1.5 * 100) / 100; } } }
+else if (ed === "POLY") {
+var k1 = topStatKey(p.s);
+stats[k1] += 1;
+var s2 = {}; for (var q = 0; q < STAT_KEYS.length; q++) { s2[STAT_KEYS[q]] = p.s[STAT_KEYS[q]] || 0; }
+s2[k1] = -99;
+var k2 = topStatKey(s2);
+stats[k2] += 1;
+for (var m in mods) { if (typeof mods[m] === "number" && m !== "shield" && m !== "magnet" && m !== "maxhp") { mods[m] = Math.round(mods[m] * 1.25 * 100) / 100; } }
+}
+else if (ed === "NEG") { stats[topStatKey(p.s)] += 1; mods.luck = Math.round((mods.luck + 0.05) * 100) / 100; }
+}
+function editionize(rng, part, luck, heat) {
+var total = 0;
+var keys = ["STD", "FOIL", "HOLO", "POLY", "NEG"];
+for (var i = 0; i < keys.length; i++) { total += EDITIONS[keys[i]].w; }
+var roll = rng() * total;
+var ed = "STD";
+for (var j = 0; j < keys.length; j++) {
+roll -= EDITIONS[keys[j]].w;
+if (roll <= 0) { ed = keys[j]; break; }
+}
+if ((luck || 0) > 0 && ed === "STD" && rng() < luck * 0.5) { ed = "FOIL"; }
+if ((heat || 0) > 3 && ed === "STD" && rng() < 0.1 + heat * 0.02) { ed = "FOIL"; }
+var copy = { id: part.id, name: part.name, slot: part.slot, rar: part.rar, kind: part.kind, s: part.s, m: part.m, fx: part.fx, ed: ed };
+if (part.active) { copy.active = part.active; copy.charges = part.charges; }
+var price = (RPRICE[part.rar] || 2) + EDITIONS[ed].cost;
+if (ed === "NEG") { price = 0; }
+copy.price = Math.max(0, price);
+return copy;
 }
 function calcLoadout(driverId, equip) {
 var drv = DRIVER_BY_ID[driverId] || DRIVERS[0];
@@ -135,11 +189,14 @@ var actives = [];
 var counts = {};
 for (var s = 0; s < SLOTS.length; s++) {
 var slot = SLOTS[s];
-var p = PART_BY_ID[equip[slot]];
+var p = typeof equip[slot] === "string" ? PART_BY_ID[equip[slot]] : equip[slot];
 if (!p) { continue; }
 list.push(p);
 addStats(stats, p.s);
-addMods(mods, p.m);
+var pm = {};
+addMods(pm, p.m);
+applyEdition(stats, pm, p);
+addMods(mods, pm);
 counts[p.kind] = (counts[p.kind] || 0) + 1;
 if (p.active) { actives.push({ id: p.active, charges: p.charges || 1, max: p.charges || 1, from: p.id }); }
 }
@@ -194,7 +251,7 @@ if (pool.length === 0) {
 for (var j = 0; j < PARTS.length; j++) { if (!exclude[PARTS[j].id]) { pool.push(PARTS[j]); } }
 }
 if (pool.length === 0) { pool = PARTS.slice(); }
-return pool[Math.floor(rng() * pool.length)];
+return editionize(rng, pool[Math.floor(rng() * pool.length)], luck, 0);
 }
 function draftParts(rng, circuit, n, luck, excludeIds) {
 var exclude = {};
@@ -212,6 +269,7 @@ function pitDraft(rng, leg, eliminated, luck, excludeIds) {
 var exclude = {};
 for (var e = 0; e < excludeIds.length; e++) { exclude[excludeIds[e]] = true; }
 var effCircuit = 1 + (eliminated + leg * 2.5) / 4;
+var heat = eliminated + leg;
 var out = [];
 var guard = 0;
 function weightOf(p) {
@@ -240,7 +298,7 @@ for (var v = 0; v < pool.length; v++) {
 roll -= weightOf(pool[v]);
 if (roll <= 0) { pick = pool[v]; break; }
 }
-if (!exclude[pick.id]) { exclude[pick.id] = true; out.push(pick); }
+if (!exclude[pick.id]) { exclude[pick.id] = true; out.push(editionize(rng, pick, luck, heat)); }
 }
 return out;
 }
@@ -264,7 +322,10 @@ return bestP;
 function cpuService(hp, maxhp) {
 return hp < maxhp * 0.55 ? "repair" : "fuel";
 }
-function priceOf(p) { return RPRICE[p.rar] || 40; }
+function priceOf(p) {
+if (p.price !== undefined) { return p.price; }
+return RPRICE[p.rar] || 2;
+}
 function aiStatsFor(rng, circuit) {
 var out = [];
 var avg = 3 + Math.min(4, (circuit - 1) * 0.55);
@@ -285,12 +346,13 @@ return out;
 return {
 SLOTS: SLOTS, SLOT_NAMES: SLOT_NAMES, STAT_KEYS: STAT_KEYS, STAT_NAMES: STAT_NAMES,
 KINDS: KINDS, KIND_LIST: KIND_LIST, RARITIES: RARITIES, RNAME: RNAME, RPRICE: RPRICE,
-ACTIVE_INFO: ACTIVE_INFO, SYNERGY: SYNERGY, DRIVERS: DRIVERS, DRIVER_BY_ID: DRIVER_BY_ID,
+EDITIONS: EDITIONS, ACTIVE_INFO: ACTIVE_INFO, SYNERGY: SYNERGY, DRIVERS: DRIVERS, DRIVER_BY_ID: DRIVER_BY_ID,
 PARTS: PARTS, PART_BY_ID: PART_BY_ID, STARTER: STARTER, AI_NAMES: AI_NAMES,
-CPU_NAMES: CPU_NAMES, LEGS: LEGS, PIT_TIME: PIT_TIME, SERVICE_COST: SERVICE_COST,
+CPU_NAMES: CPU_NAMES, LEGS: LEGS, SEGS: SEGS, SEG_CUTS: SEG_CUTS, PIT_TIME: PIT_TIME, SERVICE_COST: SERVICE_COST,
+FUEL_COST: FUEL_COST, FIX_COST: FIX_COST, REROLL_COST: REROLL_COST,
 FUEL_MAX: FUEL_MAX, HP_BASE: HP_BASE, BOSS: BOSS, BOSS_KEYS: BOSS_KEYS, FINISHER: FINISHER,
 titleFor: titleFor, assignBoss: assignBoss,
-baseMods: baseMods, calcLoadout: calcLoadout, rollRarity: rollRarity,
+baseMods: baseMods, calcLoadout: calcLoadout, rollRarity: rollRarity, editionize: editionize,
 draftParts: draftParts, pitDraft: pitDraft, cpuDecide: cpuDecide, cpuService: cpuService,
 priceOf: priceOf, aiStatsFor: aiStatsFor
 };
