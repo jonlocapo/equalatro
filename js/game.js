@@ -163,6 +163,7 @@ var D = EQ.data;
 var TG = EQ.trackgen;
 S.screen = "countdown";
 show(null);
+if (document.activeElement && document.activeElement.blur) { document.activeElement.blur(); }
 $("hud").classList.remove("hidden");
 if (S.touchMode) { $("touch").classList.remove("hidden"); }
 var track = TG.genTrack(S.run.seed, S.run.circuit);
