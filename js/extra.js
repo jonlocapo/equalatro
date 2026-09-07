@@ -18,7 +18,7 @@ else { pool = ["MIS", "MIS", "EMP", "TURBO", "SHIELD", "PATCH", "MINE"]; }
 return pool[Math.floor(rng() * pool.length)];
 }
 var EVENTS = {
-meteor: { name: "METEOR SHOWER", desc: "Burning rocks pepper the road. Keep moving.", bountyMult: 1, hazardMul: 2.2, fog: 0 },
+meteor: { name: "METEOR SHOWER", desc: "Burning debris knocks weapons loose. Arm up.", bountyMult: 1, hazardMul: 2.2, fog: 0, cache: true },
 frenzy: { name: "BOOST FRENZY", desc: "Pads everywhere, plus a free boost charge.", bountyMult: 1, hazardMul: 0.7, fog: 0, freeBoost: true },
 cache: { name: "WEAPON CACHE", desc: "Weapon cells refill fast. Arm up.", bountyMult: 1, hazardMul: 1, fog: 0, cache: true },
 oilrain: { name: "OIL RAIN", desc: "Slicks form ahead. Yuck.", bountyMult: 1, hazardMul: 1, fog: 0, oilrain: true },
