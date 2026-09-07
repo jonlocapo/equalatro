@@ -124,7 +124,6 @@ function aiInput(st, k, dt) {
 k.wob += dt * 3;
 var ahead = TG.segAt(st.track, Math.max(0, k.dist) + 120).seg;
 var target = clamp(-ahead.curve * 0.28, -0.85, 0.85);
-var look = 60;
 for (var s = 40; s <= 140; s += 40) {
 var info = TG.segAt(st.track, Math.max(0, k.dist) + s);
 var sg = info.seg;
@@ -175,7 +174,6 @@ k.speed = Math.max(0, k.speed - 30 * dt);
 k.dist += k.speed * dt;
 continue;
 }
-k.elapsed2 = (k.elapsed2 || 0) + dt;
 var inp;
 if (k.human) { inp = humanInput || { steer: 0, drift: false, use: false }; }
 else { inp = aiInput(st, k, dt); }
@@ -229,7 +227,6 @@ var acc = k.params.acc;
 if (target > k.speed) { k.speed = Math.min(target, k.speed + acc * dt); }
 else { k.speed = Math.max(target, k.speed - 60 * dt); }
 }
-if (k.human && inp.use) { inp.use = false; }
 var useId = k.human ? null : inp.use;
 if (k.human && humanInput && humanInput.use) {
 for (var u = 0; u < USE_ORDER.length; u++) {
