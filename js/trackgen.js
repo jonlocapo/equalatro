@@ -5,17 +5,19 @@ EQ.trackgen = (function () {
 function U() { return EQ.util; }
 var PRE = ["Cinder", "Moss", "Turbo", "Pebble", "Neon", "Dusty", "Fable", "Gloom", "Honey", "Iron", "Juniper", "Comet"];
 var POST = ["Dunes", "Pass", "Ring", "Meadows", "Depths", "Heights", "Mile", "Garden", "Works", "Shore", "Ruins", "Dash"];
-function genTrack(seedStr, circuit) {
+function genTrack(seedStr, circuit, opts) {
+opts = opts || {};
+var chaos = opts.chaos || 0;
 var util = U();
 var rng = util.mulberry32(util.hashStr(seedStr + ":c" + circuit));
-var count = Math.min(260, 130 + circuit * 12);
+var count = Math.min(280, 130 + circuit * 12 + (opts.sizeBonus || 0));
 var segLen = 40;
-var laps = circuit <= 2 ? 2 : 3;
+var laps = opts.laps || (circuit <= 2 ? 2 : 3);
 var curve = [];
 var hill = [];
 for (var i = 0; i < count; i++) { curve.push(0); hill.push(0); }
-var maxCurve = Math.min(3, 1.2 + circuit * 0.18);
-var nCorners = 4 + Math.min(10, circuit);
+var maxCurve = Math.min(3.2, 1.2 + (circuit + chaos) * 0.18);
+var nCorners = 4 + Math.min(12, circuit + chaos);
 for (var c = 0; c < nCorners; c++) {
 var at = Math.floor(rng() * count);
 var len = 15 + Math.floor(rng() * 26);
@@ -32,8 +34,8 @@ for (var b = 0; b < count; b++) {
 curve[b] += Math.sin((b / count) * Math.PI * 4 + circuit) * 0.35;
 curve[b] = util.clamp(curve[b], -3.4, 3.4);
 }
-var maxHill = Math.min(30, 8 + circuit * 2);
-var nHills = 3 + Math.min(6, circuit);
+var maxHill = Math.min(32, 8 + (circuit + chaos) * 2);
+var nHills = 3 + Math.min(8, circuit + chaos);
 for (var h = 0; h < nHills; h++) {
 var hat = Math.floor(rng() * count);
 var hlen = 20 + Math.floor(rng() * 30);
@@ -49,15 +51,15 @@ var segs = [];
 for (var s = 0; s < count; s++) {
 segs.push({ curve: curve[s], y: hill[s], hz: 0, hzLane: 0, coin: 0, coinLane: 0, pad: 0, side: Math.floor(rng() * 6) });
 }
-var nHaz = Math.min(40, 4 + circuit * 3);
+var nHaz = Math.min(60, Math.round((4 + circuit * 3) * (1 + chaos * 0.22)));
 var placed = 0;
 var guard = 0;
-while (placed < nHaz && guard < 400) {
+while (placed < nHaz && guard < 600) {
 guard++;
 var hi = 10 + Math.floor(rng() * (count - 10));
 if (segs[hi].hz !== 0 || segs[hi].pad !== 0) { continue; }
 var htype = 1;
-if (circuit >= 3 && rng() < Math.min(0.5, 0.15 + circuit * 0.05)) { htype = 2; }
+if (circuit >= 3 && rng() < Math.min(0.6, 0.15 + (circuit + chaos) * 0.05)) { htype = 2; }
 segs[hi].hz = htype;
 segs[hi].hzLane = LANES[Math.floor(rng() * 3)];
 placed++;
@@ -75,7 +77,7 @@ var qi = (ci + q) % count;
 if (segs[qi].hz === 0 && segs[qi].coin === 0) { segs[qi].coin = 1; segs[qi].coinLane = cl; cp++; }
 }
 }
-var nPads = 3 + Math.min(4, Math.floor(circuit / 2));
+var nPads = 3 + Math.min(5, Math.floor((circuit + chaos) / 2));
 var pp = 0;
 guard = 0;
 while (pp < nPads && guard < 300) {
