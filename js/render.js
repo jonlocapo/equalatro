@@ -48,7 +48,7 @@ var grd = ctx.createLinearGradient(0, 0, 0, H);
 grd.addColorStop(0, pal.sky[0]); grd.addColorStop(1, pal.sky[1]);
 ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
 ctx.fillStyle = pal.sun;
-ctx.fillRect(W * 0.68 - view.bgOff * 20 % (W * 2), H * 0.12, 46, 46);
+ctx.fillRect(W * 0.68 - (view.bgOff * 20 % (W * 2)), H * 0.12, 46, 46);
 ctx.fillStyle = "rgba(0,0,0,0.25)";
 for (var m = 0; m < 3; m++) {
 var moff = (view.bgOff * (30 + m * 20)) % (W * 1.5);
@@ -100,7 +100,7 @@ if (idx === 0) {
 for (var c = 0; c < 12; c++) {
 var cx1 = sx1 - sw1 + (c * 2 * sw1) / 12;
 var cx2 = sx2 - sw2 + (c * 2 * sw2) / 12;
-poly(ctx, cx1, sy1, cx1 + sw1 / 12, sy1, cx2 + sw2 / 12, sy2, cx2, sy2, c % 2 ? "#111" : "#fff");
+poly(ctx, cx1, sy1, cx1 + sw1 / 12, sy1, cx2 + sw2 / 12, sy2, cx2, sy2, c % 2 ? "#111111" : "#ffffff");
 }
 }
 drawn.push({ n: n, idx: idx, seg: seg, sx: (sx1 + sx2) / 2, sy: sy1, s: (s1 + s2) / 2, sw: (sw1 + sw2) / 2 });
@@ -143,12 +143,9 @@ var kinfo = null;
 for (var g = 0; g < drawn.length; g++) { if (drawn[g].n === kn) { kinfo = drawn[g]; break; } }
 if (!kinfo) { continue; }
 var ksc = kinfo.s * (W / 2);
-var kx = kinfo.sx + (kk.lane * ROAD - (kinfo.sx - W / 2) / (kinfo.s * (W / 2)) - view.camX + (kinfo.sx - W / 2) / (kinfo.s * (W / 2))) * kinfo.s * (W / 2);
-kx = kinfo.sx + (kk.lane * ROAD - view.camX + (kinfo.n * 0)) * kinfo.s * (W / 2) + (kinfo.sx - (W / 2 + kinfo.s * (0) )) * 0;
-kx = kinfo.sx + (kk.lane * ROAD) * kinfo.s * (W / 2) - (kinfo.sx - W / 2) * 0 - 0;
+var kx = kinfo.sx + kk.lane * ROAD * kinfo.s * (W / 2);
 var vis = look.visuals[kk.i] || look.visuals[0];
-var kw = Math.max(6, ksc * 20 * (W / 2) / (W / 2) * 0.09 + ksc * 1.1);
-kw = Math.max(6, ksc * 26);
+var kw = Math.max(6, ksc * 26);
 SPR.drawKart(ctx, kx, kinfo.sy, kw, {
 color: vis.color, scarf: vis.scarf, body: vis.body, tiresWide: vis.tiresWide,
 engineKind: vis.engineKind, spoiler: vis.spoiler, spoilerKind: vis.spoilerKind,
@@ -185,7 +182,7 @@ for (var pi = 0; pi < st.karts.length; pi++) {
 var pk = st.karts[pi];
 var pp = ((pk.lap - 1) * track.length + Math.max(0, pk.dist)) / (track.length * st.laps);
 ctx.fillStyle = pk.human ? "#ffffff" : "#ff5a3c";
-ctx.fillRect(W - 150 + 140 * Math.min(1, pp) - 2, 52 + (pi % 4) * 0 + Math.floor(pi / 4) * 0, 4, 14);
+ctx.fillRect(W - 150 + 140 * Math.min(1, pp) - 2, 52, 4, 14);
 }
 }
 return { createView: createView, drawRace: drawRace };
