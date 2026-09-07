@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Equalatro - Roguelite Kart Racer</title>
+<title>Equalatro - Knockout Tour Racer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -13,14 +13,18 @@
 <canvas id="cv" width="960" height="540"></canvas>
 <div id="hud" class="hidden">
 <div id="hud-top">
-<span id="hud-pos">8th</span>
-<span id="hud-lap">LAP 1/3</span>
+<span id="hud-pos">25th</span>
+<span id="hud-lap">LAP 1/1</span>
 <span id="hud-time">0:00.000</span>
 </div>
 <div id="hud-sub">
-<span id="hud-circuit">CIRCUIT 1</span>
+<span id="hud-circuit">LEG 1/5</span>
 <span id="hud-hearts"></span>
 <span id="hud-coins">0c</span>
+</div>
+<div id="hud-bars">
+<div class="hbb"><div id="hud-hp-fill"></div></div>
+<div class="hbb fuel"><div id="hud-fuel-fill"></div></div>
 </div>
 <div id="hud-active"><span id="hud-active-icon">-</span><span id="hud-active-n"></span></div>
 <div id="hud-charge"><div id="hud-charge-fill"></div></div>
@@ -34,11 +38,11 @@
 <div id="screens">
 <div id="scr-title" class="screen">
 <h1>EQUALATRO</h1>
-<p class="tag">A roguelite kart racer. Draft parts. Stack synergies. Survive the ladder.</p>
+<p class="tag">25 karts. 5 legs. Knockout tour. Draft parts. Dodge bosses. Do not get cut.</p>
 <p id="best-line"></p>
-<button id="btn-start">START RUN</button>
+<button id="btn-start">START TOUR</button>
 <button id="btn-help">HOW TO PLAY</button>
-<p class="foot">8 karts enter. Top 4 sleep well. v1.0</p>
+<p class="foot">25 enter. 1 crowned. v2.0</p>
 </div>
 <div id="scr-drivers" class="screen hidden">
 <h2>PICK YOUR DRIVER</h2>
@@ -53,7 +57,7 @@
 <div id="gar-parts"></div>
 <div class="row">
 <button id="btn-back-drivers" class="ghost">DRIVERS</button>
-<button id="btn-race">RACE</button>
+<button id="btn-race">START LEG 1</button>
 </div>
 </div>
 <div id="scr-results" class="screen hidden">
@@ -61,6 +65,20 @@
 <div id="res-table"></div>
 <p id="res-reward"></p>
 <button id="btn-to-shop">CONTINUE</button>
+</div>
+<div id="scr-pit" class="screen hidden">
+<h2>PIT STOP - DECIDE FAST</h2>
+<div id="pit-timer"><div id="pit-timer-fill"></div></div>
+<p id="pit-info"></p>
+<h3>GRAB A PART</h3>
+<div id="pit-draft"></div>
+<h3>SERVICE - ONE FREE, OTHER 40c</h3>
+<div class="row">
+<button id="btn-pit-fuel">REFUEL</button>
+<button id="btn-pit-repair">REPAIR</button>
+</div>
+<div id="pit-feed"></div>
+<button id="btn-leave">BACK ON TRACK</button>
 </div>
 <div id="scr-shop" class="screen hidden">
 <h2>PIT SHOP</h2>
@@ -79,18 +97,19 @@
 <h2 id="over-title">WRECKED</h2>
 <div id="over-stats"></div>
 <div class="row">
-<button id="btn-again">NEW RUN</button>
+<button id="btn-again">NEW TOUR</button>
 </div>
 </div>
 <div id="scr-help" class="screen hidden">
 <h2>HOW TO PLAY</h2>
 <div class="helpbody">
+<p>25 karts start. After each leg the slowest are CUT. Survive all 4 cuts, then win the 6 kart final.</p>
 <p>ARROWS / WASD to steer. Auto gas is ON. Hold LEFT or RIGHT into a turn to DRIFT, release for a MINI TURBO.</p>
 <p>SPACE uses your charm power. P pauses. M mutes.</p>
-<p>Finish TOP 4 to hold the run together. 5th or worse costs you a heart. Zero hearts ends the run.</p>
-<p>Your kart has 5 slots: ENGINE, TIRES, BODY, SPOILER, CHARM. Parts raise SPEED, ACCEL, HANDLING, TURBO and WEIGHT, and many carry effects: flame trails, oil slicks, zap attacks, shields, coin magnets.</p>
-<p>Match part families for SYNERGY: 2 of a kind is nice, 3 or more is a build. PYRO burns, VOLT charges, GRIP grips, AERO flies, BULK shoves, LUCKY pays.</p>
-<p>Later circuits mean faster rivals and meaner tracks, but better parts in the shop. Greed early or scale late. Your call.</p>
+<p>WATCH HP AND FUEL. Hits drain HP. Zero HP taps you out. Fuel drains as you drive and boost. Empty tank sputters. At each PIT STOP choose: free REFUEL or free REPAIR, the other costs 40c. Also grab one part, fast, while rivals grab theirs.</p>
+<p>Your kart has 5 slots: ENGINE, TIRES, BODY, SPOILER, CHARM. Match families for SYNERGY: 2 of a kind is nice, 3 or more is a build.</p>
+<p>CPU rivals carry HIDDEN BOSS effects, ranked ACE, RIVAL, HUNTER, PACK. The ACE has a FINISHER for the final leg. They pick parts fast but fair. Outdrive them.</p>
+<p>The longer the tour runs, the crazier it gets. Fallen rivals feed the loot pool.</p>
 </div>
 <button id="btn-close-help">GOT IT</button>
 </div>
