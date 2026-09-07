@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Equalatro - Roguelite Kart Racer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+<canvas id="cv" width="960" height="540"></canvas>
+<div id="hud" class="hidden">
+<div id="hud-top">
+<span id="hud-pos">8th</span>
+<span id="hud-lap">LAP 1/3</span>
+<span id="hud-time">0:00.000</span>
+</div>
+<div id="hud-sub">
+<span id="hud-circuit">CIRCUIT 1</span>
+<span id="hud-hearts"></span>
+<span id="hud-coins">0c</span>
+</div>
+<div id="hud-active"><span id="hud-active-icon">-</span><span id="hud-active-n"></span></div>
+<div id="hud-charge"><div id="hud-charge-fill"></div></div>
+<div id="hud-msg"></div>
+</div>
+<div id="topbtns">
+<button id="btn-mute" class="tiny" title="Mute">SND</button>
+<button id="btn-pause" class="tiny" title="Pause">II</button>
+</div>
+<div id="count" class="hidden"></div>
+<div id="screens">
+<div id="scr-title" class="screen">
+<h1>EQUALATRO</h1>
+<p class="tag">A roguelite kart racer. Draft parts. Stack synergies. Survive the ladder.</p>
+<p id="best-line"></p>
+<button id="btn-start">START RUN</button>
+<button id="btn-help">HOW TO PLAY</button>
+<p class="foot">8 karts enter. Top 4 sleep well. v1.0</p>
+</div>
+<div id="scr-drivers" class="screen hidden">
+<h2>PICK YOUR DRIVER</h2>
+<div id="drv-list"></div>
+<button id="btn-drv-back" class="ghost">BACK</button>
+</div>
+<div id="scr-garage" class="screen hidden">
+<h2 id="gar-title">GARAGE</h2>
+<p id="gar-driver"></p>
+<div id="gar-stats"></div>
+<div id="gar-syn"></div>
+<div id="gar-parts"></div>
+<div class="row">
+<button id="btn-back-drivers" class="ghost">DRIVERS</button>
+<button id="btn-race">RACE</button>
+</div>
+</div>
+<div id="scr-results" class="screen hidden">
+<h2 id="res-title">RESULTS</h2>
+<div id="res-table"></div>
+<p id="res-reward"></p>
+<button id="btn-to-shop">CONTINUE</button>
+</div>
+<div id="scr-shop" class="screen hidden">
+<h2>PIT SHOP</h2>
+<p id="shop-coins"></p>
+<h3>DRAFT PICK</h3>
+<div id="shop-draft"></div>
+<h3>FOR SALE</h3>
+<div id="shop-stock"></div>
+<div class="row">
+<button id="btn-reroll">REROLL 10c</button>
+<button id="btn-heal">REPAIR 80c</button>
+</div>
+<button id="btn-next">NEXT CIRCUIT</button>
+</div>
+<div id="scr-over" class="screen hidden">
+<h2 id="over-title">WRECKED</h2>
+<div id="over-stats"></div>
+<div class="row">
+<button id="btn-again">NEW RUN</button>
+</div>
+</div>
+<div id="scr-help" class="screen hidden">
+<h2>HOW TO PLAY</h2>
+<div class="helpbody">
+<p>ARROWS / WASD to steer. Auto gas is ON. Hold LEFT or RIGHT into a turn to DRIFT, release for a MINI TURBO.</p>
+<p>SPACE uses your charm power. P pauses. M mutes.</p>
+<p>Finish TOP 4 to hold the run together. 5th or worse costs you a heart. Zero hearts ends the run.</p>
+<p>Your kart has 5 slots: ENGINE, TIRES, BODY, SPOILER, CHARM. Parts raise SPEED, ACCEL, HANDLING, TURBO and WEIGHT, and many carry effects: flame trails, oil slicks, zap attacks, shields, coin magnets.</p>
+<p>Match part families for SYNERGY: 2 of a kind is nice, 3 or more is a build. PYRO burns, VOLT charges, GRIP grips, AERO flies, BULK shoves, LUCKY pays.</p>
+<p>Later circuits mean faster rivals and meaner tracks, but better parts in the shop. Greed early or scale late. Your call.</p>
+</div>
+<button id="btn-close-help">GOT IT</button>
+</div>
+<div id="paused" class="screen hidden">
+<h2>PAUSED</h2>
+<div class="row">
+<button id="btn-resume">RESUME</button>
+<button id="btn-quit">QUIT RUN</button>
+</div>
+</div>
+</div>
+<div id="touch" class="hidden">
+<button id="tch-left">&lt;</button>
+<button id="tch-right">&gt;</button>
+<button id="tch-drift">DRIFT</button>
+<button id="tch-use">USE</button>
+</div>
+</div>
+<script src="js/util.js"></script>
+<script src="js/data.js"></script>
+<script src="js/trackgen.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/render.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
