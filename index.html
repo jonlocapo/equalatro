@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Equalatro - Knockout Tour Racer</title>
+<title>Equalatro - Star Tour Racer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -14,12 +14,12 @@
 <div id="hud" class="hidden">
 <div id="hud-top">
 <span id="hud-pos">25th</span>
-<span id="hud-lap">LAP 1/1</span>
+<span id="hud-seg">SEG 1/9</span>
 <span id="hud-time">0:00.000</span>
 </div>
 <div id="hud-sub">
-<span id="hud-circuit">LEG 1/5</span>
-<span id="hud-hearts"></span>
+<span id="hud-circuit">STAR TOUR</span>
+<span id="hud-left">25 LEFT</span>
 <span id="hud-coins">0c</span>
 </div>
 <div id="hud-bars">
@@ -27,6 +27,7 @@
 <div class="hbb fuel"><div id="hud-fuel-fill"></div></div>
 </div>
 <div id="hud-active"><span id="hud-active-icon">-</span><span id="hud-active-n"></span></div>
+<div id="hud-weap"><span id="hud-weap-icon">-</span></div>
 <div id="hud-charge"><div id="hud-charge-fill"></div></div>
 <div id="hud-msg"></div>
 </div>
@@ -38,11 +39,11 @@
 <div id="screens">
 <div id="scr-title" class="screen">
 <h1>EQUALATRO</h1>
-<p class="tag">25 karts. 5 legs. Knockout tour. Draft parts. Dodge bosses. Do not get cut.</p>
+<p class="tag">25 karts. 1 long road. 9 segments. Knockout star tour. Pit live, wreck often, regen faster.</p>
 <p id="best-line"></p>
 <button id="btn-start">START TOUR</button>
 <button id="btn-help">HOW TO PLAY</button>
-<p class="foot">25 enter. 1 crowned. v2.0</p>
+<p class="foot">25 enter. 1 crowned. v3.0</p>
 </div>
 <div id="scr-drivers" class="screen hidden">
 <h2>PICK YOUR DRIVER</h2>
@@ -57,7 +58,7 @@
 <div id="gar-parts"></div>
 <div class="row">
 <button id="btn-back-drivers" class="ghost">DRIVERS</button>
-<button id="btn-race">START LEG 1</button>
+<button id="btn-race">START TOUR</button>
 </div>
 </div>
 <div id="scr-results" class="screen hidden">
@@ -67,18 +68,20 @@
 <button id="btn-to-shop">CONTINUE</button>
 </div>
 <div id="scr-pit" class="screen hidden">
-<h2>PIT STOP - DECIDE FAST</h2>
-<div id="pit-timer"><div id="pit-timer-fill"></div></div>
+<h2>PIT CREW - RACE IS LIVE</h2>
 <p id="pit-info"></p>
-<h3>GRAB A PART</h3>
-<div id="pit-draft"></div>
-<h3>SERVICE - ONE FREE, OTHER 40c</h3>
 <div class="row">
 <button id="btn-pit-fuel">REFUEL</button>
 <button id="btn-pit-repair">REPAIR</button>
 </div>
+<div id="pit-service-bar"><div id="pit-service-fill"></div></div>
+<h3>BOLT-ON PARTS</h3>
+<div id="pit-draft"></div>
+<div class="row">
+<button id="btn-pit-reroll">REROLL 1c</button>
+</div>
 <div id="pit-feed"></div>
-<button id="btn-leave">BACK ON TRACK</button>
+<button id="btn-leave">LAUNCH</button>
 </div>
 <div id="scr-shop" class="screen hidden">
 <h2>PIT SHOP</h2>
@@ -103,13 +106,15 @@
 <div id="scr-help" class="screen hidden">
 <h2>HOW TO PLAY</h2>
 <div class="helpbody">
-<p>25 karts start. After each leg the slowest are CUT. Survive all 4 cuts, then win the 6 kart final.</p>
-<p>ARROWS / WASD to steer. Auto gas is ON. Hold LEFT or RIGHT into a turn to DRIFT, release for a MINI TURBO.</p>
-<p>SPACE uses your charm power. P pauses. M mutes.</p>
-<p>WATCH HP AND FUEL. Hits drain HP. Zero HP taps you out. Fuel drains as you drive and boost. Empty tank sputters. At each PIT STOP choose: free REFUEL or free REPAIR, the other costs 40c. Also grab one part, fast, while rivals grab theirs.</p>
-<p>Your kart has 5 slots: ENGINE, TIRES, BODY, SPOILER, CHARM. Match families for SYNERGY: 2 of a kind is nice, 3 or more is a build.</p>
-<p>CPU rivals carry HIDDEN BOSS effects, ranked ACE, RIVAL, HUNTER, PACK. The ACE has a FINISHER for the final leg. They pick parts fast but fair. Outdrive them.</p>
-<p>The longer the tour runs, the crazier it gets. Fallen rivals feed the loot pool.</p>
+<p>25 karts, ONE long road, 9 segments. Everyone finishes each segment, THEN the slowest are cut.</p>
+<p>ARROWS / WASD to steer. Auto gas is ON. Hold steer into turns to DRIFT, release for MINI TURBO.</p>
+<p>SPACE fires your WEAPON. C fires your charm power. E pulls into the PIT. P pauses. M mutes.</p>
+<p>WATCH HP AND FUEL. Wrecked karts crawl and regen, stopped karts regen much faster. Empty tanks sputter and refill. Regen booster effects make burn and rebuild a real strategy.</p>
+<p>PIT STOPS ARE LIVE. The race never waits. Refuel, repair, bolt on parts, reroll the shop, then launch. Every second costs positions.</p>
+<p>Grab WEAPONS from purple cells: homers, mines, static, sugar rush, bubbles, snacks. Back markers get the spicy ones.</p>
+<p>Every 3rd segment brings an EVENT: meteor showers, fog banks, gold rushes and worse.</p>
+<p>CPU rivals have hidden BOSS effects and driving personalities. The ACE has an unfair FINISHER. Outclass them with lines or loot.</p>
+<p>Parts come in Balatro style editions: Foil, Holographic, Polychrome and the mythical free Negative. Strong effects stay rare.</p>
 </div>
 <button id="btn-close-help">GOT IT</button>
 </div>
@@ -125,16 +130,20 @@
 <button id="tch-left">&lt;</button>
 <button id="tch-right">&gt;</button>
 <button id="tch-drift">DRIFT</button>
-<button id="tch-use">USE</button>
+<button id="tch-use">WPN</button>
+<button id="tch-charm">PWR</button>
+<button id="tch-pit">PIT</button>
 </div>
 </div>
 <script src="js/util.js"></script>
 <script src="js/data.js"></script>
 <script src="js/trackgen.js"></script>
+<script src="js/extra.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/sim.js"></script>
 <script src="js/render.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/game.js"></script>
+<script src="js/tour.js"></script>
 </body>
 </html>
