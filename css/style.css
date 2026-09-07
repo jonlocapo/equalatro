@@ -17,11 +17,13 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); fo
 #hud-top { display: flex; justify-content: space-between; font-size: 14px; }
 #hud-sub { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--acc); }
 #hud-pos { color: var(--acc); }
+#hud-seg { color: var(--acc2); }
 #hud-bars { position: absolute; left: 8px; top: 118px; width: 140px; }
 .hbb { height: 10px; background: #222; border: 2px solid #000; margin-top: 4px; }
 #hud-hp-fill { height: 100%; width: 100%; background: var(--good); }
 .hbb.fuel #hud-fuel-fill { height: 100%; width: 100%; background: var(--acc); }
 #hud-active { position: absolute; right: 8px; top: 64px; background: #000a; border: 2px solid var(--acc); padding: 6px; font-size: 10px; }
+#hud-weap { position: absolute; right: 8px; top: 104px; background: #000a; border: 2px solid #c084fc; padding: 6px; font-size: 10px; }
 #hud-charge { position: absolute; left: 8px; top: 96px; width: 120px; height: 10px; border: 2px solid #000; background: #222; }
 #hud-charge-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3a86ff, var(--acc), var(--acc2)); }
 #hud-msg { position: absolute; left: 0; right: 0; top: 180px; text-align: center; font-size: 22px; color: var(--acc); }
@@ -45,6 +47,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .card.sel { box-shadow: 0 0 0 2px var(--good); }
 .card .nm { color: var(--acc); font-size: 10px; }
 .card canvas { float: right; margin-left: 8px; background: #0b0e1a; border: 2px solid #000; }
+.edtag { font-size: 8px; }
 .rar-C { color: #cfd2d6; } .rar-U { color: #7bf1a8; } .rar-R { color: #3a86ff; } .rar-E { color: #c084fc; } .rar-L { color: #ffb703; }
 .statrow { display: flex; align-items: center; gap: 6px; font-size: 9px; margin: 3px 0; }
 .statrow .lbl { width: 70px; text-align: right; }
@@ -53,13 +56,14 @@ button:disabled { opacity: 0.4; cursor: default; }
 #gar-syn { font-size: 9px; line-height: 1.8; margin: 8px 0; color: var(--acc); }
 #res-table { text-align: left; font-size: 10px; line-height: 2; }
 .helpbody { text-align: left; font-size: 9px; line-height: 2; }
-#pit-timer { height: 14px; background: #222; border: 2px solid #000; margin: 8px 0; }
-#pit-timer-fill { height: 100%; width: 100%; background: var(--acc2); }
-#pit-feed { font-size: 8px; line-height: 1.9; margin: 10px 0; min-height: 60px; text-align: left; color: var(--acc); }
+#pit-service-bar { height: 12px; background: #222; border: 2px solid #000; margin: 8px 0; }
+#pit-service-fill { height: 100%; width: 0%; background: var(--good); }
+#pit-feed { font-size: 8px; line-height: 1.9; margin: 10px 0; min-height: 40px; text-align: left; color: var(--acc); }
 .cutline { color: var(--acc2); }
 .me { color: var(--good); }
+.locked { opacity: 0.55; }
 #touch { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; justify-content: space-between; padding: 0 10px; }
-#touch button { font-size: 14px; padding: 14px 18px; opacity: 0.85; margin: 0 2px; }
+#touch button { font-size: 11px; padding: 12px 10px; opacity: 0.85; margin: 0 2px; }
 @media (max-width: 640px) {
 .screen h1 { font-size: 22px; }
 #count { font-size: 44px; top: 140px; }
