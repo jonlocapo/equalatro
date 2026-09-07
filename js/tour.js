@@ -52,7 +52,6 @@ return null;
 }
 function startTour() {
 var D = EQ.data;
-var EX = EQ.extra;
 var S = G();
 var track = EQ.trackgen.genTour(S.run.seed);
 var loadout = D.calcLoadout(S.run.driver, S.run.equip);
@@ -60,9 +59,12 @@ S.run.loadout = loadout;
 var rng = EQ.util.mulberry32(EQ.util.hashStr(S.run.seed + ":grid"));
 var karts = [];
 karts.push({ name: loadout.driver.name, human: true, stats: loadout.stats, mods: loadout.mods, actives: loadout.actives, hp: 100, fuel: 100 });
+var tiresId = EQ.game.eqId("TIRES");
+var tiresWe = typeof tiresId === "string" ? 0 : 0;
+if (typeof S.run.equip.TIRES !== "string") { tiresWe = S.run.equip.TIRES.s.we || 0; }
 var visuals = [{
 color: loadout.driver.color, scarf: loadout.driver.scarf,
-body: EQ.game.eqId("BODY"), tiresWide: ((EQ.game.eqId("TIRES").s || {}).we || 0) >= 2,
+body: EQ.game.eqId("BODY"), tiresWide: tiresWe >= 2,
 engineKind: D.PART_BY_ID[EQ.game.eqId("ENGINE")].kind,
 spoiler: EQ.game.eqId("SPOILER"), spoilerKind: D.PART_BY_ID[EQ.game.eqId("SPOILER")].kind,
 bodyKind: D.PART_BY_ID[EQ.game.eqId("BODY")].kind,
@@ -80,7 +82,7 @@ name: c.name, human: false,
 stats: { sp: Math.round(c.stats.sp), ac: Math.round(c.stats.ac), ha: Math.round(c.stats.ha), tu: Math.round(c.stats.tu), we: Math.round(c.stats.we) },
 mods: D.baseMods(), kit: { BOOST: 0, FIRE: 0, OIL: c.rank <= 7 ? 1 : 0, ZAP: 0, SHIELD: 0, STAR: 0 },
 skill: c.skill, boss: c.boss, rank: c.rank, title: c.title,
-persona: EX.PERSONAS[c.persona], finisher: c.finisher,
+persona: EQ.extra.PERSONAS[c.persona], finisher: c.finisher,
 hp: c.hp, fuel: c.fuel
 });
 ci++;
@@ -103,16 +105,13 @@ S.run.eventSeg = -1;
 var st = EQ.sim.createRace({ track: track, laps: 1, karts: karts, aggression: 0.5, chaos: 0, finalLeg: false, eventMods: {}, checkpoints: S.run.checkpoints });
 EQ.game.beginRace(st, { visuals: visuals, palette: 0, gates: gates, fog: 0, sparks: false }, track.name.toUpperCase());
 }
-function crossed(st, k, idx) {
-return EQ.sim.progressOf(st, k) >= st.checkpoints[idx];
-}
+function isParked(k) { return k.dist < -50000; }
 function afterStep(dt) {
 var S = G();
 if (!S.race || S.screen === "results" || S.screen === "over") { return; }
 var st = S.race.st;
 var me = EQ.game.meKart();
 $("hud-seg").textContent = "SEG " + Math.min(9, me.seg + 1) + "/9";
-if (st.over) { return; }
 cpuPitTick(dt, st);
 var pseg = me.seg;
 if (pseg !== S.run.eventSeg) {
@@ -124,6 +123,7 @@ var allIn = true;
 var anyIn = false;
 for (var i = 0; i < st.karts.length; i++) {
 var k = st.karts[i];
+if (isParked(k)) { continue; }
 if (k.done) { anyIn = true; continue; }
 if (EQ.sim.progressOf(st, k) >= cp) { anyIn = true; }
 else { allIn = false; }
@@ -151,10 +151,9 @@ for (var i = 0; i < st.karts.length; i++) { st.karts[i].kit.BOOST++; }
 }
 }
 function cpuPitTick(dt, st) {
-var S = G();
 for (var i = 0; i < st.karts.length; i++) {
 var k = st.karts[i];
-if (k.human || k.done) { continue; }
+if (k.human || k.done || isParked(k)) { continue; }
 if (k.pitting) { continue; }
 k.pitCd -= dt;
 if (k.pitCd > 0) { continue; }
@@ -191,6 +190,8 @@ if (c) {
 if (k.pitWhy === "fuel") { k.fuel = 100; c.fuel = 100; }
 else if (k.pitWhy === "repair") { k.hp = k.maxhp; k.wrecked = false; c.hp = 100; }
 else {
+k.params.top += 0.6;
+k.params.acc += 0.4;
 for (var sk in c.stats) { c.stats[sk] = Math.max(1, Math.min(9, Math.round((c.stats[sk] + 0.3) * 10) / 10)); }
 }
 S.run.feed.unshift(k.name + " back out (" + (k.pitWhy || "service") + ")");
@@ -211,18 +212,22 @@ function orderTable(st) {
 var t = [];
 for (var i = 0; i < st.karts.length; i++) {
 var k = st.karts[i];
-t.push({ name: k.name, human: k.human, place: k.place, time: k.done ? k.finishTime : -1, title: k.title || "", wrecked: k.wrecked });
+t.push({ name: k.name, human: k.human, place: k.place, time: k.done ? k.finishTime : -1, title: k.title || "", wrecked: k.wrecked, parked: isParked(k) });
 }
 t.sort(function (a, b) { return a.place - b.place; });
 return t;
 }
-function eliminate(k) {
-k.dist = -100000;
-k.speed = 0;
-k.pitting = true;
-k.pitT = 1e12;
-k.weapon = null;
-var c = cpuByName(k.name);
+function eliminate(st, name) {
+for (var q = 0; q < st.karts.length; q++) {
+if (st.karts[q].name === name) {
+st.karts[q].dist = -100000;
+st.karts[q].speed = 0;
+st.karts[q].pitting = true;
+st.karts[q].pitT = 1e12;
+st.karts[q].weapon = null;
+}
+}
+var c = cpuByName(name);
 if (c) { c.alive = false; }
 }
 function segmentEnd() {
@@ -235,10 +240,14 @@ EQ.game.show("scr-results");
 $("hud").classList.add("hidden");
 $("touch").classList.add("hidden");
 var table = orderTable(st);
+var pool = [];
+for (var f = 0; f < table.length; f++) { if (!table[f].parked) { pool.push(table[f]); } }
 var segIdx = S.run.segIdx;
 var isFinal = segIdx >= 8;
 var cut = isFinal ? 0 : D.SEG_CUTS[segIdx];
 var me = EQ.game.meKart();
+var myPoolIdx = -1;
+for (var m = 0; m < pool.length; m++) { if (pool[m].human) { myPoolIdx = m; } }
 var gain = Math.max(5, 60 - me.place * 2);
 S.run.coins += gain;
 if (me.place === 1) { S.run.wins++; EQ.audio.sfx("win"); }
@@ -247,23 +256,28 @@ if (isFinal) {
 finishTour(table);
 return;
 }
+if (myPoolIdx >= pool.length - cut) {
+tourOver("CUT ON SEGMENT " + (segIdx + 1), "You ran P" + (myPoolIdx + 1) + " of " + pool.length + ". Bottom " + cut + " go home. Segment wins: " + S.run.wins + ".");
+return;
+}
+for (var e2 = pool.length - cut; e2 < pool.length; e2++) {
+eliminate(st, pool[e2].name);
+}
 $("res-title").textContent = "SEGMENT " + (segIdx + 1) + " - " + EQ.util.ordinal(me.place);
 var rt = $("res-table");
 rt.innerHTML = "";
 for (var r = 0; r < table.length; r++) {
-if (r === table.length - cut) {
-rt.appendChild(EQ.game.el("div", "cutline", "--- CUT: BOTTOM " + cut + " OUT ---"));
-}
 var row = table[r];
+var tag = "";
+if (row.parked) { tag = " - OUT"; }
+else {
+var pi = -1;
+for (var p3 = 0; p3 < pool.length; p3++) { if (pool[p3].name === row.name) { pi = p3; } }
 var tstr = row.time >= 0 ? EQ.util.fmtTime(row.time * 1000) : (row.wrecked ? "WRECK" : "RACING");
+tag = " - " + tstr + (pi >= pool.length - cut ? " (CUT)" : "");
+}
 var cls = row.human ? "me" : null;
-rt.appendChild(EQ.game.el("div", cls, EQ.util.ordinal(row.place) + " " + row.name + (row.title ? " [" + row.title + "]" : "") + (row.human ? " (YOU)" : "") + " - " + tstr));
-}
-for (var e2 = table.length - cut; e2 < table.length; e2++) {
-if (table[e2].human) { continue; }
-for (var q = 0; q < st.karts.length; q++) {
-if (st.karts[q].name === table[e2].name) { eliminate(st.karts[q]); }
-}
+rt.appendChild(EQ.game.el("div", cls, EQ.util.ordinal(row.place) + " " + row.name + (row.title ? " [" + row.title + "]" : "") + (row.human ? " (YOU)" : "") + tag));
 }
 $("res-reward").textContent = "+" + gain + "c. " + aliveCount() + " karts left. The fallen feed the loot pool.";
 $("btn-to-shop").textContent = "RESUME RACE";
@@ -288,15 +302,17 @@ for (var i = 0; i < Math.min(3, table.length); i++) {
 if (i > 0) { names += ", "; }
 names += EQ.util.ordinal(table[i].place) + " " + table[i].name;
 }
+var mePlace = 0;
+for (var m = 0; m < table.length; m++) { if (table[m].human) { mePlace = table[m].place; } }
 if (champ.human) {
 EQ.extra.addCrown();
 EQ.game.saveBest(9, true);
 EQ.audio.sfx("win");
-tourOver("TOUR CHAMPION", "You beat 24 rivals over 9 segments. Podium: " + names + ". Segment wins: " + S.run.wins + ". Crown banked. New drivers unlocked.");
+tourOver("TOUR CHAMPION", "You beat 24 rivals over 9 segments. Podium: " + names + ". Segment wins: " + S.run.wins + ". Crown banked. Check the drivers screen for unlocks.");
 } else {
 EQ.game.saveBest(9, false);
 EQ.audio.sfx("lose");
-tourOver(EQ.util.ordinal(champ.place) + " " + champ.name.toUpperCase() + " TAKES THE TOUR", "You placed " + EQ.util.ordinal(orderTable(S.race.st).filter(function (r) { return r.human; })[0].place) + ". Podium: " + names + ". Segment wins: " + S.run.wins + ".");
+tourOver(EQ.util.ordinal(champ.place) + " " + champ.name.toUpperCase() + " TAKES THE TOUR", "You placed " + EQ.util.ordinal(mePlace) + ". Podium: " + names + ". Segment wins: " + S.run.wins + ".");
 }
 }
 function tourOver(title, stats) {
