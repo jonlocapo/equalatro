@@ -30,7 +30,7 @@ PYRO: { l2: { stats: {}, mods: { burnSlowPct: 0.25, burnDur: 0.5 }, text: "Pyro 
 VOLT: { l2: { stats: {}, mods: { chargeRatePct: 0.2 }, text: "Volt 2: boost charges 20% faster" }, l3: { stats: {}, mods: { chargeRatePct: 0.45, boostPowerPct: 0.1 }, text: "Volt 3+: charges 45% faster, boosts hit harder" } },
 GRIP: { l2: { stats: { ha: 1, tu: 1 }, mods: {}, text: "Grip 2: +1 handling, +1 turbo" }, l3: { stats: { ha: 2, tu: 2 }, mods: {}, text: "Grip 3+: +2 handling, +2 turbo" } },
 AERO: { l2: { stats: { sp: 1, ac: 1 }, mods: {}, text: "Aero 2: +1 speed, +1 accel" }, l3: { stats: { sp: 2, ac: 1 }, mods: { boostPowerPct: 0.1 }, text: "Aero 3+: +2 speed, +1 accel, stronger boost" } },
-BULK: { l2: { stats: {}, mods: { bumpPct: 0.3, offroadCutPct: 0.2 }, text: "Bulk 2: heavy shoves, eats rough ground" }, l3: { stats: { we: 1 }, mods: { bumpPct: 0.6, offroadCutPct: 0.35 }, text: "Bulk 3+: +1 weight, huge shoves" } },
+BULK: { l2: { stats: {}, mods: { bumpPct: 0.3, offroadCutPct: 0.2, maxhp: 15 }, text: "Bulk 2: heavy shoves, +15 HP, eats rough ground" }, l3: { stats: { we: 1 }, mods: { bumpPct: 0.6, offroadCutPct: 0.35, maxhp: 30 }, text: "Bulk 3+: +1 weight, +30 HP, huge shoves" } },
 LUCKY: { l2: { stats: {}, mods: { coinMultPct: 0.25, luck: 0.1 }, text: "Lucky 2: +25% coins, better shop odds" }, l3: { stats: {}, mods: { coinMultPct: 0.6, luck: 0.25 }, text: "Lucky 3+: +60% coins, much better shop odds" } }
 };
 var DRIVERS = [
@@ -83,8 +83,40 @@ var DRIVER_BY_ID = {};
 for (var d = 0; d < DRIVERS.length; d++) { DRIVER_BY_ID[DRIVERS[d].id] = DRIVERS[d]; }
 var STARTER = { ENGINE: "e_putt", TIRES: "t_donuts", BODY: "b_crate", SPOILER: "s_plank", CHARM: "c_shroom" };
 var AI_NAMES = ["Rook", "Tansy", "Gruf", "Nixie", "Pobble", "Sarge", "Fig"];
+var CPU_NAMES = ["Rook", "Tansy", "Gruf", "Nixie", "Pobble", "Sarge", "Fig", "Jolt", "Mira", "Onyx", "Kess", "Bram", "Ludo", "Vex", "Zara", "Quinn", "Ash", "Bolt", "Cleo", "Dex", "Ember", "Flint", "Gigi", "Hugo"];
+var LEGS = [
+{ racers: 25, cut: 20, laps: 1, chaos: 0 },
+{ racers: 20, cut: 15, laps: 1, chaos: 1 },
+{ racers: 15, cut: 10, laps: 2, chaos: 2 },
+{ racers: 10, cut: 6, laps: 2, chaos: 3 },
+{ racers: 6, cut: 1, laps: 3, chaos: 4 }
+];
+var PIT_TIME = 25;
+var SERVICE_COST = 40;
+var FUEL_MAX = 100;
+var HP_BASE = 100;
+var BOSS = {
+SLIP: { name: "Slipstream", desc: "+8% speed while chasing" },
+BULLY: { name: "Bully", desc: "Wins every shove" },
+AGGRO: { name: "Aggro", desc: "Carries extra traps" },
+SURV: { name: "Survivor", desc: "+40 HP and a second wind" },
+CLOSE: { name: "Closer", desc: "Hunts the leader late" },
+JINX: { name: "Jinx", desc: "May spin karts it passes" }
+};
+var BOSS_KEYS = ["SLIP", "BULLY", "AGGRO", "SURV", "CLOSE", "JINX"];
+var FINISHER = { name: "Finisher", desc: "Conjures a star on the final leg" };
+function titleFor(rank) {
+if (rank === 0) { return "ACE"; }
+if (rank <= 2) { return "RIVAL"; }
+if (rank <= 7) { return "HUNTER"; }
+return "PACK";
+}
+function assignBoss(rng, rank) {
+if (rank > 7 && rng() < 0.5) { return null; }
+return BOSS_KEYS[Math.floor(rng() * BOSS_KEYS.length)];
+}
 function baseMods() {
-return { boostPowerPct: 0, chargeRatePct: 0, burnSlowPct: 0, burnDur: 0, shield: 0, coinMultPct: 0, magnet: 0, bumpPct: 0, offroadCutPct: 0, luck: 0 };
+return { boostPowerPct: 0, chargeRatePct: 0, burnSlowPct: 0, burnDur: 0, shield: 0, coinMultPct: 0, magnet: 0, bumpPct: 0, offroadCutPct: 0, luck: 0, maxhp: 0 };
 }
 function addMods(dst, src) {
 if (!src) { return; }
@@ -176,6 +208,62 @@ if (!exclude[p.id]) { exclude[p.id] = true; out.push(p); }
 }
 return out;
 }
+function pitDraft(rng, leg, eliminated, luck, excludeIds) {
+var exclude = {};
+for (var e = 0; e < excludeIds.length; e++) { exclude[excludeIds[e]] = true; }
+var effCircuit = 1 + (eliminated + leg * 2.5) / 4;
+var out = [];
+var guard = 0;
+function weightOf(p) {
+var w = 1;
+if (p.slot === "CHARM") { w *= 0.55; }
+if (p.active === "STAR") { w *= 0.5; }
+if (p.active === "ZAP") { w *= 0.7; }
+return w;
+}
+while (out.length < 3 && guard < 90) {
+guard++;
+var rar = rollRarity(rng, effCircuit, luck);
+var pool = [];
+for (var i = 0; i < PARTS.length; i++) {
+if (PARTS[i].rar === rar && !exclude[PARTS[i].id]) { pool.push(PARTS[i]); }
+}
+if (pool.length === 0) {
+for (var j = 0; j < PARTS.length; j++) { if (!exclude[PARTS[j].id]) { pool.push(PARTS[j]); } }
+}
+if (pool.length === 0) { break; }
+var total = 0;
+for (var w = 0; w < pool.length; w++) { total += weightOf(pool[w]); }
+var roll = rng() * total;
+var pick = pool[pool.length - 1];
+for (var v = 0; v < pool.length; v++) {
+roll -= weightOf(pool[v]);
+if (roll <= 0) { pick = pool[v]; break; }
+}
+if (!exclude[pick.id]) { exclude[pick.id] = true; out.push(pick); }
+}
+return out;
+}
+function cpuScore(p) {
+var s = RARITIES.indexOf(p.rar) * 2;
+for (var k = 0; k < STAT_KEYS.length; k++) { s += Math.max(0, p.s[STAT_KEYS[k]] || 0); }
+if (p.active) { s += 1; }
+return s;
+}
+function cpuDecide(rng, offers, rank) {
+if (!offers.length) { return null; }
+if (rank > 2 && rng() < 0.2) { return offers[Math.floor(rng() * offers.length)]; }
+var bestP = offers[0];
+var bestS = cpuScore(bestP);
+for (var i = 1; i < offers.length; i++) {
+var s = cpuScore(offers[i]);
+if (s > bestS) { bestS = s; bestP = offers[i]; }
+}
+return bestP;
+}
+function cpuService(hp, maxhp) {
+return hp < maxhp * 0.55 ? "repair" : "fuel";
+}
 function priceOf(p) { return RPRICE[p.rar] || 40; }
 function aiStatsFor(rng, circuit) {
 var out = [];
@@ -199,8 +287,12 @@ SLOTS: SLOTS, SLOT_NAMES: SLOT_NAMES, STAT_KEYS: STAT_KEYS, STAT_NAMES: STAT_NAM
 KINDS: KINDS, KIND_LIST: KIND_LIST, RARITIES: RARITIES, RNAME: RNAME, RPRICE: RPRICE,
 ACTIVE_INFO: ACTIVE_INFO, SYNERGY: SYNERGY, DRIVERS: DRIVERS, DRIVER_BY_ID: DRIVER_BY_ID,
 PARTS: PARTS, PART_BY_ID: PART_BY_ID, STARTER: STARTER, AI_NAMES: AI_NAMES,
+CPU_NAMES: CPU_NAMES, LEGS: LEGS, PIT_TIME: PIT_TIME, SERVICE_COST: SERVICE_COST,
+FUEL_MAX: FUEL_MAX, HP_BASE: HP_BASE, BOSS: BOSS, BOSS_KEYS: BOSS_KEYS, FINISHER: FINISHER,
+titleFor: titleFor, assignBoss: assignBoss,
 baseMods: baseMods, calcLoadout: calcLoadout, rollRarity: rollRarity,
-draftParts: draftParts, priceOf: priceOf, aiStatsFor: aiStatsFor
+draftParts: draftParts, pitDraft: pitDraft, cpuDecide: cpuDecide, cpuService: cpuService,
+priceOf: priceOf, aiStatsFor: aiStatsFor
 };
 })();
 if (typeof module !== "undefined" && module.exports) { module.exports = EQ.data; }
