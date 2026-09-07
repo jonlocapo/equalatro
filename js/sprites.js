@@ -174,7 +174,6 @@ var ctx = cv.getContext("2d");
 var W = cv.width; var H = cv.height;
 ctx.clearRect(0, 0, W, H);
 var u = W / 16;
-R(ctx, 0, 0, W, H, "#obb");
 R(ctx, 0, 0, W, H, "#0b0e1a");
 R(ctx, 3 * u, 12 * u, 10 * u, 3 * u, driver.color);
 R(ctx, 4 * u, 2 * u, 8 * u, 9 * u, driver.color);
