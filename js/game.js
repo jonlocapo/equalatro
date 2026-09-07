@@ -229,9 +229,8 @@ $("hud-lap").textContent = "LAP " + Math.min(me.lap, st.laps) + "/" + st.laps;
 $("hud-time").textContent = EQ.util.fmtTime(st.time * 1000);
 $("hud-hearts").textContent = heartsStr();
 $("hud-coins").textContent = S.run.coins + "c";
-var ready = null;
-for (var a = 0; a < me.kitOrder 나; a++) {}
 var order = ["STAR", "BOOST", "ZAP", "SHIELD", "FIRE", "OIL"];
+var ready = null;
 for (var q = 0; q < order.length; q++) {
 if (me.kit[order[q]] > 0) { ready = { id: order[q], n: me.kit[order[q]] }; break; }
 }
@@ -306,11 +305,9 @@ else if (e.t === "hit" && isMe) { EQ.audio.sfx("hit"); hudMsg("HIT", 0.7); }
 else if (e.t === "zap" && isMe) { EQ.audio.sfx("zap"); }
 else if (e.t === "star" && isMe) { EQ.audio.sfx("star"); hudMsg("STAR", 1); }
 else if (e.t === "finish" && isMe) {
-var me = S.race.st.karts[e.i];
 if (e.place === 1) { hudMsg("WINNER", 2); }
 else { hudMsg(EQ.util.ordinal(e.place), 2); }
 }
-else if (e.t === "pass" && isMe) { S.run.coins += 0; }
 }
 }
 function pollInput() {
@@ -376,7 +373,6 @@ var rng = EQ.util.mulberry32(EQ.util.hashStr(S.run.seed + ":shop" + S.run.circui
 var luck = S.run.loadout.mods.luck || 0;
 var n = place === 1 ? 3 : (place <= 3 ? 2 : (place === 4 ? 1 : 0));
 S.run.draft = n > 0 ? D.draftParts(rng, S.run.circuit, n, luck, ownedSet()) : [];
-S.run.stock = [D.pickPartForShop ? null : null];
 S.run.stock = [];
 var ex = ownedSet();
 for (var s2 = 0; s2 < S.run.draft.length; s2++) { ex[S.run.draft[s2].id] = true; }
@@ -488,8 +484,8 @@ hold("tch-drift", "drift");
 $("tch-use").addEventListener("touchstart", function (e) { e.preventDefault(); if (S.race) { S.race.input.use = true; } }, { passive: false });
 $("tch-use").addEventListener("mousedown", function (e) { e.preventDefault(); if (S.race) { S.race.input.use = true; } });
 $("btn-start").onclick = function () { EQ.audio.ensure(); EQ.audio.sfx("click"); S.screen = "drivers"; show("scr-drivers"); renderDrivers(); };
-$("btn-help").onclick = function () { EQ.audio.sfx("click"); S.helpFrom = S.screen; S.screen = "help"; show("scr-help"); };
-$("btn-close-help").onclick = function () { EQ.audio.sfx("back"); S.screen = S.helpFrom === "help" ? "title" : (S.helpFrom || "title"); show(S.screen === "title" ? "scr-title" : null); if (S.screen === "title") { show("scr-title"); } };
+$("btn-help").onclick = function () { EQ.audio.sfx("click"); S.screen = "help"; show("scr-help"); };
+$("btn-close-help").onclick = function () { EQ.audio.sfx("back"); S.screen = "title"; show("scr-title"); };
 $("btn-drv-back").onclick = function () { EQ.audio.sfx("back"); S.screen = "title"; show("scr-title"); };
 $("btn-back-drivers").onclick = function () { EQ.audio.sfx("back"); S.screen = "drivers"; show("scr-drivers"); renderDrivers(); };
 $("btn-race").onclick = function () { EQ.audio.sfx("click"); startRace(); };
