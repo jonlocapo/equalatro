@@ -1,5 +1,6 @@
 "use strict";
 var EQ = (typeof window !== "undefined") ? (window.EQ = window.EQ || {}) : {};
+if (!EQ.util && typeof require !== "undefined") { EQ.util = require("./util.js"); }
 EQ.trackgen = (function () {
 function U() { return EQ.util; }
 var PRE = ["Cinder", "Moss", "Turbo", "Pebble", "Neon", "Dusty", "Fable", "Gloom", "Honey", "Iron", "Juniper", "Comet"];
